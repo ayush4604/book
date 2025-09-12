@@ -1,42 +1,49 @@
-from fastapi import FastAPI
+from fastapi import APIRouter, Query,Path,HTTPException
 from typing import Optional
-app=FastAPI()
+from book_modal import bookadd
+router=APIRouter()
 
-@app.get("/")
-def welcome():
-    return{"greet":"this is book section"}
+# @router.get("/")
+# def welcome():
+#     return{"greet":"this is book section"}
 
-@app.get("/books")
-def book_list():
-    dic={
-        "book1":{"Name":"IOP",
-                 "books_id":22},
-        "book2":{"Name":"AOP",
-                 "books_id":23},
-        "book3":{"Name":"IOF",
-                 "books_id":24}
-    }
+book_list=[
+        {"Name":"IOP",
+                 "books_id":24,
+                 "access_code":123}
+        ,
+        {"Name":"AOP",
+                 "books_id":22,
+                "access_code":124}
+        ,
+        {"Name":"IOF",
+                 "books_id":23,
+                 "access_code":125}
+        
+    ]
+@router.get("/books")
+def book_lists(q:Optional[str]=Query(None)):
+    if q is None:
+        return book_list
+    good_query=["books_id","access_code","Name"] 
+    if q not in good_query:
+         raise HTTPException(status_code=400,detail="invalid query")
+    try:
+        sorted_data = sorted(book_list, key=lambda x: x[q])
+    except KeyError:
+        raise HTTPException(status_code=400, detail=f"Key '{q}' not found in some books")
 
-    return dic
-@app.get("/books/{book_id}")
-def books_list(book_id:int,q:Optional[str]=None,limit:int=10):
-    dic={
-        "book1":{"Name":"IOP",
-                 "books_id":22},
-        "book2":{"Name":"AOP",
-                 "books_id":23},
-        "book3":{"Name":"IOF",
-                 "books_id":24}
-    }
-    for book in dic.values():
+    return sorted_data
+@router.get("/books/{book_id}")
+def books_list(book_id:int=Path(...,gt=20)):
+    for book in book_list:
         if(book["books_id"]==book_id):
             res={"books":book}
-            
-            if (q):
-                res["query"]=q
-            res["limit"]=limit
             return res
 
-        
-    else:
-        return {"Invalid Book Id"}
+    raise HTTPException(status_code=404,detail="Books not found")  
+@router.post("/")
+def add_book(book:bookadd):
+    book_dict=book.dict()
+    book_list.append(book_dict)
+    return book_list
