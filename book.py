@@ -10,15 +10,18 @@ router=APIRouter()
 book_list=[
         {"Name":"IOP",
                  "books_id":24,
-                 "access_code":123}
+                 "access_code":123,
+                 "email_id:":"IOP@fastapi.com"}
         ,
         {"Name":"AOP",
                  "books_id":22,
-                "access_code":124}
+                "access_code":124,
+                "email_id:":"AOP@fastapi.com"}
         ,
         {"Name":"IOF",
                  "books_id":23,
-                 "access_code":125}
+                 "access_code":125,
+                 "email_id:":"IOF@fastapi.com"}
         
     ]
 @router.get("/books")
@@ -45,5 +48,8 @@ def books_list(book_id:int=Path(...,gt=20)):
 @router.post("/")
 def add_book(book:bookadd):
     book_dict=book.dict()
+
     book_list.append(book_dict)
     return book_list
+
+
