@@ -1,7 +1,8 @@
-from pydantic import BaseModel,model_validator,EmailStr
+from pydantic import BaseModel,model_validator,EmailStr,Field
+from typing import Annotated,Optional
 class bookadd(BaseModel):
-    Name:str
-    books_id:int
+    Name:Annotated[str,Field(...,description="Name of the book ")]
+    book_id:Annotated[int,Field(...,description="id must be unique ",examples=["129897"])]
     access_code:str
     email_id:EmailStr
 
@@ -21,5 +22,14 @@ class bookadd(BaseModel):
             raise ValueError("email_id must be valid , ends with @fastapi.com")
         
         return value
+
+
+class update_info(BaseModel):
+    Name:Annotated[Optional[str],Field(default=None,description="Name of the book ")]
+    access_code:Annotated[Optional[str],Field(default=None,description="code to access book")]
+    email_id:Annotated[Optional[EmailStr],Field(default=None,description="Add @fastapi email_id")]
+
+
+
 
 
